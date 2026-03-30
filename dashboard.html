@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aura-Grid | Distributed DeFi Intelligence</title>
+    <style>
+        :root {
+            --bg-color: #050505;
+            --accent-color: #FF6B00;
+            --neon-blue: #00F0FF;
+            --text-primary: #F0F0F0;
+            --text-secondary: #999;
+            --border-color: #333;
+            --card-bg: rgba(20, 20, 20, 0.8);
+            --danger-color: #FF003C;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-primary); overflow-x: hidden; }
+
+        body::before {
+            content: " "; position: fixed; top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 1000; background-size: 100% 2px, 3px 100%; pointer-events: none;
+        }
+
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 3rem; border-bottom: 1px solid var(--border-color); background: rgba(0,0,0,0.5); backdrop-filter: blur(10px); }
+        .logo { font-size: 1.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 4px; color: var(--accent-color); text-shadow: 0 0 10px var(--accent-color); }
+        .status-badge { display: flex; align-items: center; gap: 10px; font-size: 0.9rem; color: var(--neon-blue); }
+        .status-dot { width: 10px; height: 10px; background: var(--neon-blue); border-radius: 50%; box-shadow: 0 0 10px var(--neon-blue); animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+
+        .main-container { display: grid; grid-template-columns: 1fr 350px; gap: 2rem; padding: 2rem 3rem; }
+        .dashboard-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+        .stat-card { background: var(--card-bg); border: 1px solid var(--border-color); padding: 1.5rem; border-radius: 4px; position: relative; overflow: hidden; }
+        .stat-card::after { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--accent-color); }
+        .stat-label { color: var(--text-secondary); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; }
+        .stat-value { font-size: 2.2rem; font-weight: 700; margin-top: 0.5rem; color: #fff; }
+
+        .live-feed-container { grid-column: span 3; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 4px; padding: 1.5rem; }
+        .feed-header { font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; display: flex; justify-content: space-between; }
+        .feed-list { list-style: none; font-family: 'Courier New', Courier, monospace; height: 350px; overflow-y: hidden; border-left: 2px solid #222; padding-left: 1rem; }
+        .feed-item { margin-bottom: 0.8rem; font-size: 0.9rem; opacity: 0.9; animation: slideIn 0.3s ease-out; }
+        @keyframes slideIn { from { transform: translateX(-10px); opacity: 0; } to { transform: translateX(0); opacity: 0.9; } }
+
+        .vulnerability-alert { color: var(--danger-color); font-weight: bold; }
+        .success-scan { color: var(--neon-blue); }
+        .scanning { color: #FFCC00; }
+        .ai-badge { font-size: 0.7rem; background: var(--danger-color); color: #fff; padding: 2px 6px; border-radius: 2px; margin-left: 10px; font-weight: 800; text-transform: uppercase; }
+
+        .sidebar-card { background: var(--card-bg); border: 1px solid var(--border-color); padding: 1.5rem; border-radius: 4px; margin-bottom: 1.5rem; }
+        .sidebar-title { font-size: 0.9rem; font-weight: 700; text-transform: uppercase; margin-bottom: 1rem; color: var(--accent-color); }
+        .node-list { list-style: none; }
+        .node-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem; font-size: 0.85rem; }
+        .node-status-online { color: var(--neon-blue); }
+        
+        .btn-report { width: 100%; background: transparent; border: 1px solid var(--accent-color); color: var(--accent-color); padding: 10px; cursor: pointer; text-transform: uppercase; font-weight: 700; transition: 0.3s; }
+        .btn-report:hover { background: var(--accent-color); color: #000; }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">Aura-Grid</div>
+        <div class="status-badge" id="ws-status">
+            <div class="status-dot" style="background: red;"></div>
+            CONNECTING...
+        </div>
+    </header>
+
+    <main class="main-container">
+        <div class="dashboard-grid">
+            <div class="stat-card">
+                <div class="stat-label">Total Contracts Scanned</div>
+                <div class="stat-value" id="total-scans">1,245,902</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Threats Prevented</div>
+                <div class="stat-value" id="threats-count" style="color: var(--danger-color);">429</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Latency (ms)</div>
+                <div class="stat-value" id="tps-value" style="color: var(--neon-blue);">0.042</div>
+            </div>
+
+            <div class="live-feed-container">
+                <div class="feed-header">
+                    <span>LIVE SCAN ENGINE (WEBSOCKET)</span>
+                    <span style="font-size: 0.8rem; color: #555;">v2.1.0 | AURA-RUST-ELITE</span>
+                </div>
+                <ul class="feed-list" id="feed">
+                    <li class="feed-item" style="color: #666;">Waiting for network telemetry...</li>
+                </ul>
+            </div>
+        </div>
+
+        <aside class="sidebar">
+            <div class="sidebar-card">
+                <div class="sidebar-title">Network Nodes</div>
+                <ul class="node-list">
+                    <li class="node-item"><span>Worker-Elite-01</span> <span class="node-status-online">ONLINE</span></li>
+                </ul>
+            </div>
+            <div class="sidebar-card">
+                <div class="sidebar-title">Security Center</div>
+                <button class="btn-report">Export Audit Report</button>
+            </div>
+        </aside>
+    </main>
+
+    <script>
+        const feed = document.getElementById('feed');
+        const scanValue = document.getElementById('total-scans');
+        const threatValue = document.getElementById('threats-count');
+        const wsStatus = document.getElementById('ws-status');
+        
+        let totalScans = 1245902;
+        let threatsCount = 429;
+
+        const socket = new WebSocket('ws://localhost:8765');
+
+        socket.onopen = function(e) {
+            wsStatus.innerHTML = '<div class="status-dot"></div> SYSTEM ONLINE';
+        };
+
+        socket.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            const time = new Date().toLocaleTimeString();
+            const li = document.createElement('li');
+            li.className = 'feed-item';
+
+            if (data.type === "scan_start") {
+                li.innerHTML = `[${time}] <span class="scanning">SCANNING...</span> ${data.contract_id}`;
+            } else if (data.type === "scan_clean") {
+                li.innerHTML = `[${time}] <span class="success-scan">CLEAN</span> ${data.contract_id}`;
+                totalScans++;
+            } else if (data.type === "threat_found") {
+                const threatStr = data.data.vulnerabilities.join(", ");
+                let aiBadgeHtml = "";
+                
+                if(data.data.ai_verification && data.data.ai_verification.length > 0) {
+                   const aiData = data.data.ai_verification[0];
+                   if(aiData.confidence_score > 0.9) {
+                       aiBadgeHtml = `<span class="ai-badge">Verified by AI</span>`;
+                   }
+                }
+
+                li.innerHTML = `[${time}] <span class="vulnerability-alert">THREAT_FOUND:</span> ${data.contract_id} -> ${threatStr} ${aiBadgeHtml}`;
+                threatsCount++;
+                totalScans++;
+            }
+
+            feed.prepend(li);
+            if (feed.children.length > 15) {
+                feed.removeChild(feed.lastChild);
+            }
+
+            scanValue.innerText = totalScans.toLocaleString();
+            threatValue.innerText = threatsCount.toLocaleString();
+        };
+
+        socket.onclose = function(event) {
+            wsStatus.innerHTML = '<div class="status-dot" style="background: red;"></div> DISCONNECTED';
+        };
+    </script>
+</body>
+</html>

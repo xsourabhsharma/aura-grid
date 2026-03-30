@@ -1,0 +1,11 @@
+.env
+node_modules/
+target/
+__pycache__/
+*.pyc
+.DS_Store
+dist/
+.venv/
+build/
+core/target/
+controller/dist/
